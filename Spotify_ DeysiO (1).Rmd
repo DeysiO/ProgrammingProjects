@@ -1,0 +1,319 @@
+---
+title: "Final Project"
+author: "Deysi Ochoa"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+
+```{r}
+library(RColorBrewer,quietly = TRUE)
+library(GISTools,quietly = TRUE)
+library(gapminder,,quietly = TRUE)
+library(corrplot,,quietly = TRUE)
+```
+
+Get some pretty colors
+```{r}
+colours <- brewer.pal(8, "Set2")
+coloursT <- add.alpha(colours,.5)
+```
+
+```{r}
+# "Beats.Per.Minute - The tempo of the song.
+# Energy- The energy of a song - the higher the value, the more energtic. song
+# Loudness..dB.. - The higher the value, the louder the song
+# Liveness - The higher the value, the more likely the song is a live recording
+
+# import data sets
+Spotify <-  read.csv(("~/Downloads/top10s 2.csv"))
+#summary(Spotify)
+
+Spotify <- na.omit(Spotify) # remove NA's
+#Spotify <- Spotify[!duplicated(Spotify$title),]
+ #colnames(Spotify)
+
+#I got all the genres and created histograms to compare them to the bpm. I only did it to bpm so I could have an idea on how to compare it and see how the bar graphs would look like.
+
+NeoMellow <- Spotify[Spotify$top.genre == "neo mellow",]
+hist(NeoMellow$bpm)
+#summary(NeoMellow)
+BigRoom <- Spotify[Spotify$top.genre == "big room",]
+hist(BigRoom$bpm)
+#summary(BigRoom)
+DancePop <- Spotify[Spotify$top.genre == "dance pop",]
+hist(DancePop$bpm)
+#summary(DancePop)
+CanadianPop  <- Spotify[Spotify$top.genre == "canadian pop",]
+hist(CanadianPop$bpm)
+#summary(CanadianPop)
+HipHop  <- Spotify[Spotify$top.genre == "hip hop",]
+hist(HipPop$bpm)
+#summary(HipPop) #The least medium bpn
+ElectronicPop  <- Spotify[Spotify$top.genre == "electro",]
+hist(ElectronicPop$bpm)
+#summary(ElectronicPop)
+Latin  <- Spotify[Spotify$top.genre == "latin",]
+hist(Latin$bpm)
+BritishSoul <- Spotify[Spotify$top.genre == "british soul",]
+hist(BritishSoul$bpm)
+#summary(Latin)   # the most medium bpn 
+
+```
+
+```{r, fig.width=4, fig.height=5, fig.cap= "My hypothesis is that Pop music has a higher bpm level than other genres that are not considered Pop because of its beat drops and music breaks.Turns out the genres that are in the "Other Genre" category have more bpm, specially Latin Music."}
+
+#I wanted to divide the genres into two categories. The first one beign songs where the genre has the word"pop" on it and the second one beign the genre that didnt have the name "pop" on it. I did this since many titles included Pop so I wanted to see the difference bewteen the genres. 
+
+#The pop category included Canadian Pop, HipHop,POP, DancePop and electric PoP
+# The other category includes British Soul, Latin, Neo Mellow and Big Room.
+
+
+# #I did this to return some values without actually plotting the data.
+bpm <- Spotify[Spotify$bpm,] #
+outCP<-  hist(CanadianPop$bpm, plot=FALSE)   
+outHH <- hist(HipHop$bpm, plot=FALSE)
+outDancePop <-  hist(DancePop$bpm, plot=FALSE)
+outElectronicPop <-  hist(ElectronicPop$bpm, plot=FALSE)
+outBS <- hist(BritishSoul$bpm, plot = FALSE)
+outLatin <-  hist(Latin$bpm, plot=FALSE)
+outNeoMellow <-  hist(NeoMellow$bpm, plot=FALSE)
+outBigRoom <-  hist(BigRoom$bpm, plot=FALSE)
+
+
+
+# I created a bar plot comparing the genre and the bpm, I did this by creating a Matrix and getting the proportions  
+
+#These are the proportions for the bpm(beats per minute)
+propX <- matrix(, nrow = 4, ncol = 2, byrow = TRUE)
+propX[1,1] <- sum(ElectronicPop$bpm) / length(ElectronicPop$bpm)
+propX[2,1] <- sum(DancePop$bpm) / length(DancePop$bpm)
+propX[3,1] <- sum(HipHop$bpm) / length(HipHop$bpm)
+propX[4,1] <- sum(CanadianPop$bpm) / length(CanadianPop$bpm)
+propX[1,2] <- sum(BritishSoul$bpm) / length(BritishSoul$bpm)
+propX[2,2] <- sum(Latin$bpm) / length(Latin$bpm)
+propX[3,2] <- sum(NeoMellow$bpm) / length(NeoMellow$bpm)
+propX[4,2] <- sum(BigRoom$bpm) / length(BigRoom$bpm)
+propX
+
+#Downloaded the library and colors 
+library(RColorBrewer) #installed the library to get colors
+colours <- brewer.pal(8, "Accent")
+coloursT <- add.alpha(colours, .25)
+
+par(mfrow = c(2,1), mai = c(.1,.5,.5,.11), omi =c(.75,.25,.75,.25), xpd=TRUE)
+# mai and omi are for the inner and outer margins
+xpos <- barplot(propX, beside = TRUE,col = coloursT[1:4],  ylim = c(0,200), cex.axis = 1,)
+#I graph my proportions, added color, column, y-limit's, tick labels
+mtext(text = "Comparing Genres to the BPM",line = 2, cex =1 )
+#I added text and defined their position, size and spacing
+mtext(c("ElectroPop", "DancePop"), 1, at = xpos[c(1,2)], cex = .75, line = .75)
+mtext(c("HipPop", "CanadianPop"), 1, at = xpos[c(3,4)], cex = .75, line = .75)
+mtext(c("British-Soul", "Latin" ), 1, at = xpos[c(5,6)], cex = .75, line = .75)
+mtext(c("Neo-Mellow", "Big-Room"), 1, at = xpos[c(7,8)], cex = .75, line = .75)
+mtext(c("Pop Genre", "Other Genre"), 1, at = xpos[c(3,7)], cex = 1, line = 2)
+mtext("BPM (beats per minute)", 2, line = 3, cex = 1)
+
+```
+```{r, fig.width=4, fig.height=5, fig.cap="My hypothesis is that both the categories would be pretty equal since I know all the genres are known to have high energy. The results were surprising since the Pop Genre category had a similar level of NRGY, which was about 70. While both Latin and Neo Mellow had a higher NRGY and British Soul and Big Room had a lower NRGY.}
+
+#I created another proportion comparing the genres to the nrgy(energy)
+propY <- matrix(, nrow = 4, ncol = 2, byrow = TRUE)
+propY[1,1] <- sum(ElectronicPop$nrgy) / length(ElectronicPop$nrgy)
+propY[2,1] <- sum(DancePop$nrgy) / length(DancePop$nrgy)
+propY[3,1] <- sum(HipHop$nrgy) / length(HipHop$nrgy)
+propY[4,1] <- sum(CanadianPop$nrgy) / length(CanadianPop$nrgy)
+propY[1,2] <- sum(BritishSoul$nrgy) / length(BritishSoul$nrgy)
+propY[2,2] <- sum(Latin$nrgy) / length(Latin$nrgy)
+propY[3,2] <- sum(NeoMellow$nrgy) / length(NeoMellow$nrgy)
+propY[4,2] <- sum(BigRoom$nrgy) / length(BigRoom$nrgy)
+propY
+
+
+library(RColorBrewer) #installed the library to get colors
+colours <- brewer.pal(8, "Accent")
+coloursT <- add.alpha(colours, .25)
+
+par(mfrow = c(2,1), mai = c(.1,.6,.1,.01), omi =c(.75,.25,.75,.25), xpd=TRUE)
+xpos <- barplot(propY, beside = TRUE,col = coloursT[1:4],  ylim = c(0,100), cex.axis = 1,)
+mtext(text ="Comparing Genres to the NRGY", line = 2, cex =1 )
+mtext(c("ElectroPop", "DancePop"), 1, at = xpos[c(1,2)], cex = .75, line = .75)
+mtext(c("HipPop", "CanadianPop"), 1, at = xpos[c(3,4)], cex = .75, line = .75)
+mtext(c("British-Soul", "Latin" ), 1, at = xpos[c(5,6)], cex = .75, line = .75)
+mtext(c("Neo-Mellow", "Big-Room"), 1, at = xpos[c(7,8)], cex = .75, line = .75)
+mtext(c("Pop Genre", "Other Genre"), 1, at = xpos[c(3,7)], cex = 1, line = 2)
+mtext("NRGY (beats per minute)", 2, line = 3, cex = 1)
+
+
+
+```
+
+```{r, fig.width=4, fig.height=5, fig.cap="My hypothesis is that the Pop Genre Category will have a significant difference in dB(loudness) than the other genres. From my experience I know soul and Latin songs can be soft sounding, while all the pop genres are known to be loud. This proved to be wrong as "Pop Gerne" and "Other Genre" sub categories were mixed in levels. Both  the british soul proved to have a dB of about -10 while Latin had a dB of about -3. This proved that even though they were both part of the "Other Genre", they had the most and least level of dB}
+
+# It took me a while to figure out what dB was but I learned that it has to stay below 0 so it wont damage speakers. But also it was describe to depend on a threshold. Some articles stated that hearing a whisper is 30dB while a motorcycle is -20dB so the more negative it is, the louder the noise level is. Other articles said that 0 is silence. This shows that dB is a relative measurement but I will criticize this as 0 being silent and as the value goes down the more loud it is.  
+propZ <- matrix(, nrow = 4, ncol = 2, byrow = TRUE)
+propZ[1,1] <- sum(ElectronicPop$dB) / length(ElectronicPop$dB)
+propZ[2,1] <- sum(DancePop$dB) / length(DancePop$dB)
+propZ[3,1] <- sum(HipHop$dB) / length(HipHop$dB)
+propZ[4,1] <- sum(CanadianPop$dB) / length(CanadianPop$dB)
+propZ[1,2] <- sum(BritishSoul$dB) / length(BritishSoul$dB)
+propZ[2,2] <- sum(Latin$dB) / length(Latin$dB)
+propZ[3,2] <- sum(NeoMellow$dB) / length(NeoMellow$dB)
+propZ[4,2] <- sum(BigRoom$dB) / length(BigRoom$dB)
+propZ
+
+
+library(RColorBrewer) #installed the library to get colors
+colours <- brewer.pal(8, "Accent")
+coloursT <- add.alpha(colours, .25)
+par(mfrow = c(2,1), mai = c(.1,.6,.1,.01), omi =c(.75,.25,.75,.25), xpd=TRUE)
+xpos <- barplot(propZ, beside = TRUE,col = coloursT[1:4],  ylim = c(-10,0), cex.axis = 1,)
+mtext(text = "Genres with dB",line = 2, cex =1 )
+mtext(c("ElectroPop", "DancePop"), 1, at = xpos[c(1,2)], cex = .75, line = .75)
+mtext(c("HipPop", "CanadianPop"), 1, at = xpos[c(3,4)], cex = .75, line = .75)
+mtext(c("British-Soul", "Latin" ), 1, at = xpos[c(5,6)], cex = .75, line = .75)
+mtext(c("Neo-Mellow", "Big-Room"), 1, at = xpos[c(7,8)], cex = .75, line = .75)
+mtext(c("Pop Genre", "Other Genre"), 1, at = xpos[c(3,7)], cex = 1, line = 2)
+mtext("dB (beats per minute)", 2, line = 3, cex = 1)
+
+```
+
+```{r, fig.width=4, fig.height=5, fig.cap="My hypothesis is that the "Other Genres" category especially Neo Mellow has a high value of acoustic while ElectroPop has the lowest value of acoustic since that genre is infamous for using autotune. My prediction was correct and overall the "Pop Genre" has a low level of acoustic"}
+propZZ <- matrix(, nrow = 4, ncol = 2, byrow = TRUE)
+propZZ[1,1] <- sum(ElectronicPop$acous) / length(ElectronicPop$acous)
+propZZ[2,1] <- sum(DancePop$acous) / length(DancePop$acous)
+propZZ[3,1] <- sum(HipHop$acous) / length(HipHop$acous)
+propZZ[4,1] <- sum(CanadianPop$acous) / length(CanadianPop$acous)
+propZZ[1,2] <- sum(BritishSoul$acous) / length(BritishSoul$acous)
+propZZ[2,2] <- sum(Latin$acous) / length(Latin$acous)
+propZZ[3,2] <- sum(NeoMellow$acous) / length(NeoMellow$acous)
+propZZ[4,2] <- sum(BigRoom$acous) / length(BigRoom$acous)
+propZZ
+
+
+library(RColorBrewer) #installed the library to get colors
+colours <- brewer.pal(8, "Accent")
+coloursT <- add.alpha(colours, .25)
+
+par(mfrow = c(2,1), mai = c(.1,.6,.1,.01), omi =c(.75,.25,.75,.25), xpd=TRUE)
+xpos <- barplot(propZZ, beside = TRUE,col = coloursT[1:4],  ylim = c(0,80), cex.axis = 1,)
+mtext(text = "Genres with Acoustic",line = 2, cex =1 )
+mtext(c("ElectroPop", "DancePop"), 1, at = xpos[c(1,2)], cex = .75, line = .75)
+mtext(c("HipPop", "CanadianPop"), 1, at = xpos[c(3,4)], cex = .75, line = .75)
+mtext(c("British-Soul", "Latin" ), 1, at = xpos[c(5,6)], cex = .75, line = .75)
+mtext(c("Neo-Mellow", "Big-Room"), 1, at = xpos[c(7,8)], cex = .75, line = .75)
+mtext(c("Pop Genre", "Other Genre"), 1, at = xpos[c(3,7)], cex = 1, line = 2)
+mtext("dB (beats per minute)", 2, line = 3, cex = 1)
+```
+
+```{r, fig.width=4, fig.height=10}
+
+#Failed making the barplots 
+
+predictions<-predict(model, data = Spotify, type = "response") #I used the prediction model to #predictions
+
+yLim = c(0,100)
+yLim = yLimit
+#I tried creating a hist comparing different bpm genres but it was difficult since there was a different amount of songs. 
+hist(Latin$bpm,
+     ylim= c(0,100),
+     las=1, #rotate the numbers 
+     main = "Comparing bpm Genres", #what the axis will be called
+     axes = FALSE, #no axis
+     ann = FALSE, #No annotations 
+     col = coloursT[6]   ) #defined the color
+
+
+hist(DancePop$bpm,
+     ylim= c(0,100),
+     col = coloursT[3], #defined the color
+     add= TRUE) #Added the histrogram ontop of the other one 
+
+axis(2, at=pretty(yLimit), tck= 0.05, labels = FALSE, lwd=3 ) #at is where tick levels go#Defined the tick labels
+# lwd= line width (how thick the line is)
+mtext(pretty(yLimit),2, at=pretty(yLimit), las=1, line=.25, cex=1) #cex makes the letter bigger #las rotates the number 
+mtext ("BPM(beats per minute)", 2, line=1.5, font=2, cex=1.25) #mtext adds text
+mtext ("BPM bewteen Latin and Dance Pop", 3,  line=.5, font=2, cex=1.25)  
+legend (x="topleft", c("Latin, \n Dance-Pop "), fill=c(coloursT[8], coloursT[2]), bty="n")
+
+#I soon realized this box plot comparing was not a good idea 
+
+ #par(mai=c(.5,1,1.5,1.05)) #bottom, left,top,right  
+# xtick <- pretty(range(Spotify$bpm))
+# #The x axis I subset the speed of the data  
+# boxplot(Latin.~ Dance Pop, data= Spotify, col=c(coloursT[8], coloursT[2]), horizontal = TRUE, border= TRUE, axes=FALSE, ann = FALSE, boxwex = .75, outwex =2, ylim =range(xtick))
+# #I made a boxplox while adding border, axes, removed annotations, define the box scale and width 
+# # I tried to make the border  border=c(coloursT[2], coloursT[8]), but it didnt work 
+# 
+# 
+# axis(1, at=xtick, tck= 0.1, labels = FALSE, lwd=2 )
+# mtext(xtick,1, at=xtick, las=1, line=.25,font = 2, cex=1) 
+# mtext ("BPM)", 1, line=1.5, font=2, cex=1.25)
+# #I finally defined the border of the x axis 
+
+
+#I played around with the numbers but my plot still got cutt off 
+
+yLimit <- c(0, max(outCP$counts, outHH$counts))
+yLimit <- c(range(pretty(yLimit)))
+#I defined the ylimit and gave it pretty numbers 
+
+
+
+#Created the histogram 
+hist(CanadianPop$bpm,
+     ylim= yLimit,
+     las=1, 
+     main = "BPM(beats/minute)", 
+     axes = FALSE, 
+     ann = FALSE, 
+     col = coloursT[2]   )
+
+
+hist(HipHop$bpm,
+     col = coloursT[8], 
+     add= TRUE)  
+
+axis(2, at=pretty(yLimit), tck= 0.05, labels = FALSE, lwd=3 ) 
+mtext(pretty(yLimit),2, at=pretty(yLimit), las=1, line=.25, cex=1) 
+mtext ("BPM(beats per minute)", 2, line=1.5, font=2, cex=1.25) #mtext adds text
+mtext ("BPM bewteen Canadian Pop and HipPop", 3,  line=.5, font=2, cex=1.25)  
+legend (x="topleft", c("CanadianPop, \n HipPop "), fill=c(coloursT[8], coloursT[2]), bty="n")
+
+```
+
+
+
+
+
+```{r, fig.width=4, fig.height=5, fig.cap= "I compared the corrolations to one another, green signifying a positive association while pink signifying a negative association. The deeper the color, the greater its association"}
+
+#str(Spotify)
+spotify_data <-  Spotify[, c(6:length(Spotify))] 
+
+#Determine corrolations 
+#library(corrplot)
+scolors <- hcl.colors(256, palette = "PiYG" )
+corM <- cor(Spotify[,6:length(Spotify)]) # columns 
+corrplot(corM, diag = FALSE, type= "upper", col= scolors )
+
+```
+
+```{r}
+#Conclusion: 
+
+# The purpose of this project was to compare the Genres to BPM(beats per minute), NRGY(energy), dB(loudness) and acoustic. I did this by dividing the Genres into two different categories "Pop Genres" and "Other Genres." I wanted to see how both categories will compare to the different music elements. For BPM, both categories seemed to be mixed, with not many similarities between the sub genres. Overall the category "Other Genres" had a higher BPM. When I compared the categories to NRGY, there seemed to be a similar level between the Pop Genre category. Meanwhile, the sub genres in the Other Genre categories had different NRGY levels. This showed that Pop Genres have a similar NRGY level. Next I compared the categories to the dB. There didnt seem to be a correlation between the sub genres and its category. Both the British Soul and Latin had the lowest and highest dB level. They were both from the Other Genres Category. Lastly I compared the categories with the Acoustic level. The Pop Genre Category had low levels while the Other Genre Category was mixed. 
+
+#It was impressing to see how each music element factored into the genres. There seemed to be a similar level in the Pop Genre sub genres with dB and NRGY. Meanwhile the Other Genre category didnt have many similarities.  
+
+
+```
